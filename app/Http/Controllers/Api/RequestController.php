@@ -237,6 +237,11 @@ class RequestController extends Controller
     public function userAccept(Request $request, $requestId, $notificationId)
     {
         try {
+
+            $userRequest = UserRequest::findOrFail($requestId);
+            $userRequest->status = 'accepted';
+            $userRequest->save();
+
             $userId = auth()->id();
             Log::debug('User ID:', ['user_id' => $userId]);
 

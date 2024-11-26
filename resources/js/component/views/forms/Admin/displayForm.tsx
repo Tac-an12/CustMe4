@@ -154,9 +154,9 @@ const DisplayForm: React.FC = () => {
                   <Typography variant="body2" color="textPrimary" className="mb-1">
                     <strong>Price:</strong> {post.price ? `₱${post.price}` : 'N/A'}
                   </Typography>
-                  <Typography variant="body2" color="textPrimary" className="mb-1">
+                  {/* <Typography variant="body2" color="textPrimary" className="mb-1">
                     <strong>Qauntity:</strong> {post.quantity? `${post.quantity}` : 'N/A'}
-                  </Typography>
+                  </Typography> */}
                   {/* <Typography variant="body2" color="textSecondary" className="mb-1">
                     <strong>Created:</strong> {post.created_at ? formatDate(post.created_at) : 'N/A'}
                   </Typography>

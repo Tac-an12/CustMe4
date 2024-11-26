@@ -242,54 +242,67 @@ class PaymentController extends Controller
             // Check if the user has already made the initial payment
             $initialPayment = $userRequest->initialPayments()->where('user_id', $userId)->first();
 
-            // If not found for the current user, check for the target_user_id
+            // If not found, check for the target_user_id scenario (Scenario 2)
             if (!$initialPayment) {
-                $targetUserId = $userRequest->target_user_id;  // Get target_user_id from the request model
+                // Scenario 2: Request initiator is Graphic/Printing (payer)
+                $payerUserId = $userRequest->user_id;  // This will be the Graphic/Printing User
+                $targetUserId = $userRequest->target_user_id;  // This will be the User who needs to pay
 
-                // Log the target_user_id
-                Log::debug('No initial payment found for user. Checking target_user_id:', [
-                    'target_user_id' => $targetUserId,
+                // Debugging Scenario 2 flow
+                Log::debug('Scenario 2: Request initiator (Graphic/Printing) is responsible for payment.', [
+                    'payer_user_id' => $payerUserId,
+                    'target_user_id_from_request' => $targetUserId,
+                    'user_id' => $userId,
                 ]);
 
-                // Try to find the initial payment for the target user
-                $initialPayment = $userRequest->initialPayments()->where('user_id', $targetUserId)->first();
+                // Check if the logged-in user is the target user who needs to pay
+                if ($userId === $targetUserId) {
+                    Log::debug('User is the target user who must pay (Scenario 2).', [
+                        'payer_user_id' => $payerUserId,
+                        'target_user_id' => $targetUserId,
+                        'request_id' => $userRequest->request_id,
+                    ]);
 
-                // Log if the payment was found for the target user
-                Log::debug('Initial Payment Found for Target User:', [
-                    'initial_payment_id' => $initialPayment->id ?? null,
-                    'initial_payment_status' => $initialPayment->status ?? 'No status available',
-                ]);
+                    // Check for initial payment where the payer is the Graphic/Printing user
+                    $initialPayment = $userRequest->initialPayments()
+                        ->where('user_id', $payerUserId) // Match the responsible payer's ID
+                        ->where('request_id', $userRequest->request_id) // Ensure it's for the correct request
+                        ->first();
+
+                    if ($initialPayment) {
+                        Log::debug('Found initial payment in Scenario 2.', [
+                            'initial_payment_id' => $initialPayment->initial_payment_id,
+                            'amount' => $initialPayment->amount,
+                            'status' => $initialPayment->status,
+                        ]);
+                    } else {
+                        Log::debug('No initial payment found for the request in Scenario 2.');
+                    }
+                } else {
+                    Log::debug('User is not the target user in Scenario 2. Skipping payment processing.');
+                }
             }
 
-            // Debugging the status of the initial payment
-            Log::debug('Initial Payment Status Check:', [
-                'initial_payment_id' => $initialPayment->id ?? null, // Log the payment ID to ensure it's retrieved
-                'initial_payment_status' => $initialPayment->status ?? 'No status available', // Log the current status
-            ]);
+            // If no initial payment was found, return an error
+            if (!$initialPayment) {
+                return response()->json(['error' => 'Initial payment not initiated or not found'], 400);
+            }
 
-            if (!$initialPayment || $initialPayment->status !== 'initiated') {
-                Log::warning('Initial Payment Not Initiated', [
-                    'initial_payment_id' => $initialPayment->id ?? null,
-                    'current_status' => $initialPayment->status ?? 'No status available',
-                ]);
+            // If initial payment exists, check the status and update it
+            if ($initialPayment->status !== 'initiated') {
                 return response()->json(['error' => 'Initial payment not yet completed or initiated'], 400);
             }
 
-            // Update the initial payment amount (add 80% to the existing amount)
-            $updatedAmount = $initialPayment->amount + ($amount / 100); // Convert centavos to PHP (divide by 100)
+            // Update the initial payment status to 'completed' and update the amount
+            $updatedAmount = $initialPayment->amount + ($amount / 100); // Add 80% amount (convert to PHP)
 
-            // Debugging the updated amount
-            Log::debug('Updated Amount:', [
-                'updated_amount' => $updatedAmount,
-            ]);
-
-            // Update the initial payment with the new 80% amount
+            // Update the initial payment with the new amount and set the status to 'completed'
             $initialPayment->update([
-                'status' => 'completed', // Set the status to 'completed' after the payment
-                'amount' => $updatedAmount, // Updated amount with 80% added
+                'status' => 'completed',
+                'amount' => $updatedAmount,
             ]);
 
-            // Optionally, you can log or handle any additional tasks here
+            // Log the update
             Log::info('Initial payment updated with remaining 80% amount:', $initialPayment->toArray());
 
             // Create the PayMongo payment link for the remaining 80% payment
