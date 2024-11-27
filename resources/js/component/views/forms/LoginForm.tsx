@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { CircularProgress, TextField, Button } from '@mui/material';
+import { CircularProgress, TextField, Button } from "@mui/material";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -16,7 +16,7 @@ const LoginForm = () => {
     if (user) {
       switch (user?.role?.rolename) {
         case "Admin":
-          navigate("/admin");
+          navigate("/sales-reports");
           break;
         case "User":
           navigate("/user");
@@ -68,7 +68,9 @@ const LoginForm = () => {
       } catch (error) {
         console.error("An error occurred during login:", error);
         setEmailError("An unexpected error occurred. Please try again later.");
-        setPasswordError("An unexpected error occurred. Please try again later.");
+        setPasswordError(
+          "An unexpected error occurred. Please try again later."
+        );
       } finally {
         setIsLoading(false);
       }
@@ -134,7 +136,11 @@ const LoginForm = () => {
           disabled={isLoading}
           className="bg-primary text-white py-2 rounded-lg"
         >
-          {isLoading ? <CircularProgress size={24} className="text-white" /> : "Log In"}
+          {isLoading ? (
+            <CircularProgress size={24} className="text-white" />
+          ) : (
+            "Log In"
+          )}
         </Button>
       </form>
 

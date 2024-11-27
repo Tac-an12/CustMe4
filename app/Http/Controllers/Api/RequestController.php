@@ -131,7 +131,7 @@ class RequestController extends Controller
             $userRequest->save();
 
             // Find the initial payment related to this request
-            $payment = InitialPayment::where('request_id', $requestId)->first(); // Find the first matching payment by foreign key
+            $payment = InitialPayment::where('request_id', $requestId)->first();  // Find the first matching payment by foreign key
             if ($payment) {
                 // Check if there's a valid checkout_session_id
                 $checkoutSessionId = $payment->transaction_id;

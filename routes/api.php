@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\SkillController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\AdminPaymentController;
-use App\Http\Controllers\Api\BalanceRequestController;
+use App\Http\Controllers\Api\SalesReportController;
 use App\Http\Controllers\Api\PayMongoWebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -89,6 +89,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Route::get('/user-balance/{userId}', [AdminPaymentController::class, 'getUserBalance']);
 
     Route::get('/user/{userId}/requests-payments', [PaymentController::class, 'getRequestsWithPayments']);
+    Route::get('/sales-report', [SalesReportController::class, 'generateSalesReport']);
 
     Broadcast::channel('chat.{receiverId}', function ($user, $receiverId) {
         return (int) $user->id === (int) $receiverId || (int) $user->id === (int) $receiverId;

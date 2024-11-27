@@ -150,9 +150,9 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         try {
-            if ($post->user_id !== Auth::id()) {
-                return response()->json(['error' => 'Unauthorized'], 403);
-            }
+            // if ($post->user_id !== Auth::id()) {
+            //     return response()->json(['error' => 'Unauthorized'], 403);
+            // }
 
             foreach ($post->images as $image) {
                 Storage::disk('public')->delete($image->image_path);
