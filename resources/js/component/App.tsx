@@ -17,6 +17,7 @@ import { PaymentProvider } from "./context/PaymentContext";
 import { AdminPaymentProvider } from "./context/AdminPaymentContext";
 import { BalanceRequestProvider } from "./context/BalanceRequestContext";
 import { SalesReportProvider } from "./context/SalesReportContext";
+import { RatingProvider } from "./context/RatingContext";
 
 const App = () => {
   return (
@@ -37,7 +38,9 @@ const App = () => {
                                 <AdminPaymentProvider>
                                   <BalanceRequestProvider>
                                     <SalesReportProvider>
-                                      <Routes />
+                                      <RatingProvider>
+                                        <Routes />
+                                      </RatingProvider>
                                     </SalesReportProvider>
                                   </BalanceRequestProvider>
                                 </AdminPaymentProvider>

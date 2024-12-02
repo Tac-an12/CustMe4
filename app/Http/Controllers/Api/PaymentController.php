@@ -368,7 +368,7 @@ class PaymentController extends Controller
 
         // Check if there are any requests found
         if ($requests->isEmpty()) {
-            return response()->json(['message' => 'No requests found for this user.'], 404);
+            return response()->json(['message' => 'No requests found for this user.'], 200);
         }
 
         return response()->json($requests, 200);

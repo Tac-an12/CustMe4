@@ -103,7 +103,7 @@ function AboutMe() {
         </Typography>
       </Box>
 
-      <Box mb={2}>
+      {/* <Box mb={2}>
         <Typography
           variant="body1"
           className="text-gray-600"
@@ -118,7 +118,7 @@ function AboutMe() {
           readOnly
           precision={0.1}
         />
-      </Box>
+      </Box> */}
 
       <Box mb={2}>
         <Typography

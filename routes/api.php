@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AdminPaymentController as ControllersAdminPaymentController;
+
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PostController;
@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\SkillController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\AdminPaymentController;
 use App\Http\Controllers\Api\SalesReportController;
+use App\Http\Controllers\Api\RatingController;
 use App\Http\Controllers\Api\PayMongoWebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -90,6 +91,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/user/{userId}/requests-payments', [PaymentController::class, 'getRequestsWithPayments']);
     Route::get('/sales-report', [SalesReportController::class, 'generateSalesReport']);
+
+    Route::get('/ratings/{userId}', [RatingController::class, 'getRatings']);
+
+    // Post a rating
+    Route::post('/ratings', [RatingController::class, 'postRating']);
+
+    // Edit a rating
+    Route::put('/ratings/{ratingId}', [RatingController::class, 'editRating']);
 
     Broadcast::channel('chat.{receiverId}', function ($user, $receiverId) {
         return (int) $user->id === (int) $receiverId || (int) $user->id === (int) $receiverId;

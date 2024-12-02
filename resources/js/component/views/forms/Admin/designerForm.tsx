@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash, FaPaperPlane, FaComments } from 'react-icons/fa';
-import Header from '../components/header';
-import { Card, CardContent, CardActions, Typography, Button } from '@mui/material';
-import { useRequest } from '../../../context/RequestContext';
-import RequestModal from '../../requestmore'; // Adjust the path as necessary
-import { useDesignerProviderContext } from '../../../context/Desing&ProviderContext';
-import { usePostContext } from '../../../context/PostContext'; // Import PostContext
-import { useAuth } from '../../../context/AuthContext'; 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaEdit, FaTrash, FaPaperPlane, FaComments } from "react-icons/fa";
+import Header from "../components/header";
+import {
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
+  Button,
+} from "@mui/material";
+import { useRequest } from "../../../context/RequestContext";
+import RequestModal from "../../requestmore"; // Adjust the path as necessary
+import { useDesignerProviderContext } from "../../../context/Desing&ProviderContext";
+import { usePostContext } from "../../../context/PostContext"; // Import PostContext
+import { useAuth } from "../../../context/AuthContext";
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
     hour12: true,
   }).format(date);
 };
@@ -33,7 +39,7 @@ const DesignerPostForm: React.FC = () => {
   const { user, deletePost } = usePostContext(); // Access user from context
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<number | null>(null);
-  const [requestContent, setRequestContent] = useState('');
+  const [requestContent, setRequestContent] = useState("");
   const [designerPosts, setDesignerPosts] = useState<any[]>([]);
   const [targetUserId, setTargetUserId] = useState<number | null>(null);
   const navigate = useNavigate();
@@ -44,14 +50,19 @@ const DesignerPostForm: React.FC = () => {
         const fetchedDesignerPosts = await fetchDesignerPosts(1, 4);
         setDesignerPosts(fetchedDesignerPosts.slice(0, 4) ?? []);
       } catch (error) {
-        console.error('Error fetching designer posts:', error);
+        console.error("Error fetching designer posts:", error);
         setDesignerPosts([]);
       }
     };
     fetchPosts();
   }, [fetchDesignerPosts]);
 
-  const handleEdit = (postId: number, title: string, content: string, images: Image[]) => {
+  const handleEdit = (
+    postId: number,
+    title: string,
+    content: string,
+    images: Image[]
+  ) => {
     navigate(`/posts/${postId}`, { state: { postId, title, content, images } });
   };
 
@@ -65,7 +76,7 @@ const DesignerPostForm: React.FC = () => {
     navigate("/chats", { state: { userId } });
   };
 
-  const handleRequestButtonClick = (postId: number, postUserId: number) => {   
+  const handleRequestButtonClick = (postId: number, postUserId: number) => {
     setSelectedPost(postId);
     setTargetUserId(postUserId);
     setModalOpen(true);
@@ -73,15 +84,17 @@ const DesignerPostForm: React.FC = () => {
 
   const handleRequestSubmit = async () => {
     if (selectedPost) {
-      const selectedPostData = designerPosts.find((post) => post.post_id === selectedPost);
+      const selectedPostData = designerPosts.find(
+        (post) => post.post_id === selectedPost
+      );
       if (selectedPostData) {
         const userId = selectedPostData.user_id;
         setTargetUserId(userId);
         await handleRequest(selectedPost, userId, requestContent);
         setModalOpen(false); // Close the modal after submitting
-        setRequestContent(''); // Reset fields
+        setRequestContent(""); // Reset fields
       } else {
-        console.error('Selected post not found');
+        console.error("Selected post not found");
       }
     }
   };
@@ -94,7 +107,11 @@ const DesignerPostForm: React.FC = () => {
       <div className="flex justify-center gap-4 flex-wrap ">
         {posts.length > 0 ? (
           posts.map((post) => (
-            <Card key={post.post_id} className="shadow-lg" style={{ width: '300px', height: 'auto' }}>
+            <Card
+              key={post.post_id}
+              className="shadow-lg"
+              style={{ width: "300px", height: "auto" }}
+            >
               {post.images.length > 0 ? (
                 <ImageCarousel images={post.images} />
               ) : (
@@ -105,28 +122,43 @@ const DesignerPostForm: React.FC = () => {
               <CardContent>
                 <div className="flex items-center mb-2">
                   <img
-                    src={'https://via.placeholder.com/40'}
+                    src={"https://via.placeholder.com/40"}
                     alt="Profile"
                     className="w-6 h-6 rounded-full mr-2"
                   />
                   <div>
-                    <Typography variant="body2" className="font-semibold">
-                      {post.user?.username || 'Unknown'}
+                    <Typography
+                      variant="subtitle1"
+                      className="font-bold cursor-pointer"
+                      onClick={() =>
+                        navigate(`/clients/${post.user_id}/profile`)
+                      }
+                    >
+                      {post.user?.username || "Unknown"}
                     </Typography>
                     <Typography variant="caption" color="textSecondary">
-                      {post.user?.role?.rolename || 'N/A'}
+                      {post.user?.role?.rolename || "N/A"}
                     </Typography>
                   </div>
                 </div>
                 <Typography variant="h6" component="h2" className="font-bold">
                   Title: {post.title}
                 </Typography>
-                <Typography variant="body2" color="textSecondary" className="mb-2">
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  className="mb-2"
+                >
                   Content: {post.content}
                 </Typography>
                 <div className="mb-3">
-                  <Typography variant="body2" color="textPrimary" className="mb-1">
-                    <strong>Price:</strong> {post.price ? `${post.price}` : 'N/A'}
+                  <Typography
+                    variant="body2"
+                    color="textPrimary"
+                    className="mb-1"
+                  >
+                    <strong>Price:</strong>{" "}
+                    {post.price ? `${post.price}` : "N/A"}
                   </Typography>
                   {/* <Typography variant="body2" color="textPrimary" className="mb-1">
                     <strong>Quantity:</strong> {post.quantity ? `${post.quantity}` : 'N/A'}
@@ -143,7 +175,9 @@ const DesignerPostForm: React.FC = () => {
                 <div className="flex flex-row space-x-2">
                   {post.user_id !== user.id && (
                     <Button
-                      onClick={() => handleRequestButtonClick(post.post_id, post.user_id)}
+                      onClick={() =>
+                        handleRequestButtonClick(post.post_id, post.user_id)
+                      }
                       variant="outlined"
                       startIcon={<FaPaperPlane />}
                       size="small"
@@ -155,7 +189,14 @@ const DesignerPostForm: React.FC = () => {
                   {post.user_id === user.id && (
                     <>
                       <Button
-                        onClick={() => handleEdit(post.post_id, post.title, post.content, post.images)}
+                        onClick={() =>
+                          handleEdit(
+                            post.post_id,
+                            post.title,
+                            post.content,
+                            post.images
+                          )
+                        }
                         variant="outlined"
                         startIcon={<FaEdit />}
                         size="small"
@@ -203,7 +244,7 @@ const DesignerPostForm: React.FC = () => {
       <div className="flex-1 flex flex-col">
         <Header />
         <div className="mt-16">
-          {renderPosts(designerPosts, 'Graphic Designer Posts')}
+          {renderPosts(designerPosts, "Graphic Designer Posts")}
         </div>
 
         {/* Request Modal */}
@@ -212,8 +253,8 @@ const DesignerPostForm: React.FC = () => {
           handleClose={() => setModalOpen(false)}
           setRequestContent={setRequestContent}
           selectedPost={selectedPost}
-          targetUserId={targetUserId}
-          role={authUser?.role?.rolename || 'N/A'}
+          targetUserId={targetUserId ?? 0}
+          role={authUser?.role?.rolename || "N/A"}
         />
       </div>
     </div>
@@ -224,11 +265,15 @@ const ImageCarousel: React.FC<{ images: Image[] }> = ({ images }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const prevImage = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
   };
 
   const nextImage = () => {
-    setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+    setCurrentIndex((prevIndex) =>
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
   };
 
   return (

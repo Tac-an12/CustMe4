@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import apiService from '../services/apiService';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import apiService from "../services/apiService";
 
 interface Role {
   roleid: number;
@@ -100,19 +100,25 @@ interface ClientProfileContextProps {
   loading: boolean;
 }
 
-const ClientProfileContext = createContext<ClientProfileContextProps | undefined>(undefined);
+const ClientProfileContext = createContext<
+  ClientProfileContextProps | undefined
+>(undefined);
 
 interface ClientProfileProviderProps {
   children: ReactNode;
 }
 
-export const ClientProfileProvider: React.FC<ClientProfileProviderProps> = ({ children }) => {
+export const ClientProfileProvider: React.FC<ClientProfileProviderProps> = ({
+  children,
+}) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchProfile = async (userId: number) => {
     if (loading || (profile && profile.id === userId)) {
-      console.log('Profile already loaded or loading in progress, skipping fetch.');
+      console.log(
+        "Profile already loaded or loading in progress, skipping fetch."
+      );
       return;
     }
 
@@ -121,8 +127,8 @@ export const ClientProfileProvider: React.FC<ClientProfileProviderProps> = ({ ch
 
     try {
       const response = await apiService.get(`/users/${userId}/profile`);
-      console.log('Profile fetched:', response.data);
-      
+      console.log("Profile fetched:", response.data);
+
       const userProfile: UserProfile = {
         id: response.data.user.id,
         username: response.data.user.username,
@@ -139,7 +145,7 @@ export const ClientProfileProvider: React.FC<ClientProfileProviderProps> = ({ ch
 
       setProfile(userProfile);
     } catch (error) {
-      console.error('Error fetching client profile:', error);
+      console.error("Error fetching client profile:", error);
     } finally {
       setLoading(false);
     }
@@ -151,29 +157,33 @@ export const ClientProfileProvider: React.FC<ClientProfileProviderProps> = ({ ch
     files?: { profilepicture?: File; coverphoto?: File }
   ): Promise<void> => {
     const formData = new FormData();
-    formData.append('firstname', data.firstname || '');
-    formData.append('lastname', data.lastname || '');
-    formData.append('zipcode', data.zipcode || '');
+    formData.append("firstname", data.firstname || "");
+    formData.append("lastname", data.lastname || "");
+    formData.append("zipcode", data.zipcode || "");
 
     if (files?.profilepicture) {
-      formData.append('profilepicture', files.profilepicture);
+      formData.append("profilepicture", files.profilepicture);
     }
     if (files?.coverphoto) {
-      formData.append('coverphoto', files.coverphoto);
+      formData.append("coverphoto", files.coverphoto);
     }
 
-    formData.append('_method', 'PUT');
+    formData.append("_method", "PUT");
 
     try {
-      const response = await apiService.post(`/users/${userId}/updateprofile`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await apiService.post(
+        `/users/${userId}/updateprofile`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       if (response.status === 200) {
-        console.log('Profile successfully updated on server.');
+        console.log("Profile successfully updated on server.");
         await fetchProfile(userId); // Refetch profile to update with latest data
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
     }
   };
 
@@ -184,23 +194,34 @@ export const ClientProfileProvider: React.FC<ClientProfileProviderProps> = ({ ch
     printingSkills: number[]
   ): Promise<void> => {
     try {
-      const response = await apiService.put(`/users/${userId}/update-bio&skills`, {
-        bio,
-        skills,
-        printing_skills: printingSkills,
-      });
-  
+      const response = await apiService.put(
+        `/users/${userId}/update-bio&skills`,
+        {
+          bio,
+          skills,
+          printing_skills: printingSkills,
+        }
+      );
+
       if (response.status === 200) {
-        console.log('Bio and skills updated successfully.');
+        console.log("Bio and skills updated successfully.");
         await fetchProfile(userId); // Refresh profile with latest data
       }
     } catch (error) {
-      console.error('Error updating bio and skills:', error);
+      console.error("Error updating bio and skills:", error);
     }
   };
 
   return (
-    <ClientProfileContext.Provider value={{ profile, fetchProfile, updateProfile, updateBioAndSkills, loading }}>
+    <ClientProfileContext.Provider
+      value={{
+        profile,
+        fetchProfile,
+        updateProfile,
+        updateBioAndSkills,
+        loading,
+      }}
+    >
       {children}
     </ClientProfileContext.Provider>
   );
@@ -209,7 +230,9 @@ export const ClientProfileProvider: React.FC<ClientProfileProviderProps> = ({ ch
 export const useClientProfile = (): ClientProfileContextProps => {
   const context = useContext(ClientProfileContext);
   if (!context) {
-    throw new Error('useClientProfile must be used within a ClientProfileProvider');
+    throw new Error(
+      "useClientProfile must be used within a ClientProfileProvider"
+    );
   }
   return context;
 };

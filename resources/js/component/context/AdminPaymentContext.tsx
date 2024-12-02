@@ -1,6 +1,6 @@
-import React, { ReactNode, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext'; // Using the AuthContext to get the current user
-import apiService from '../services/apiService';
+import React, { ReactNode, useEffect } from "react";
+import { useAuth } from "../context/AuthContext"; // Using the AuthContext to get the current user
+import apiService from "../services/apiService";
 
 interface PaymentData {
   initial_payment_id: number;
@@ -24,16 +24,20 @@ interface RequestData {
 }
 
 interface AdminPaymentContextType {
-  requests: RequestData[];  // Requests now include payments
+  requests: RequestData[]; // Requests now include payments
   loading: boolean;
   error: string | null;
-  fetchRequestPayments: () => void;  // Fetches all request payments
+  fetchRequestPayments: () => void; // Fetches all request payments
 }
 
-const AdminPaymentContext = React.createContext<AdminPaymentContextType | undefined>(undefined);
+const AdminPaymentContext = React.createContext<
+  AdminPaymentContextType | undefined
+>(undefined);
 
-export const AdminPaymentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [requests, setRequests] = React.useState<RequestData[]>([]);  // Storing requests with payments
+export const AdminPaymentProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [requests, setRequests] = React.useState<RequestData[]>([]); // Storing requests with payments
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
   const { user } = useAuth(); // Access logged-in user from context
@@ -43,11 +47,13 @@ export const AdminPaymentProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (!user?.id) return; // Ensure that user ID is available
     setLoading(true);
     try {
-      const response = await apiService.get(`/user/${user.id}/requests-payments`);
-      setRequests(response.data);  // Store the requests along with payments in the state
+      const response = await apiService.get(
+        `/user/${user.id}/requests-payments`
+      );
+      setRequests(response.data); // Store the requests along with payments in the state
       setError(null);
     } catch (err) {
-      setError('Failed to fetch request payments');
+      setError("Failed to fetch request payments");
     } finally {
       setLoading(false);
     }
@@ -61,7 +67,9 @@ export const AdminPaymentProvider: React.FC<{ children: ReactNode }> = ({ childr
   }, [user]);
 
   return (
-    <AdminPaymentContext.Provider value={{ requests, loading, error, fetchRequestPayments }}>
+    <AdminPaymentContext.Provider
+      value={{ requests, loading, error, fetchRequestPayments }}
+    >
       {children}
     </AdminPaymentContext.Provider>
   );
@@ -71,7 +79,9 @@ export const AdminPaymentProvider: React.FC<{ children: ReactNode }> = ({ childr
 export const useAdminPaymentContext = () => {
   const context = React.useContext(AdminPaymentContext);
   if (!context) {
-    throw new Error('useAdminPaymentContext must be used within an AdminPaymentProvider');
+    throw new Error(
+      "useAdminPaymentContext must be used within an AdminPaymentProvider"
+    );
   }
   return context;
 };

@@ -1,25 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { Typography, Card, CardContent, CardActions, Button, Avatar, IconButton, Menu, MenuItem } from '@mui/material';
-import { MoreVert as MoreVertIcon, ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { usePostContext } from '../../../context/PostContext';
-import { useAuth } from '../../../context/AuthContext';
-import Header from '../components/header';
-import { format } from 'date-fns';
-
-interface Image {
-  image_id: number;
-  image_path: string;
-}
+import React, { useEffect, useState } from "react";
+import {
+  Typography,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  Avatar,
+  IconButton,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+import {
+  MoreVert as MoreVertIcon,
+  ArrowBack as ArrowBackIcon,
+  ArrowForward as ArrowForwardIcon,
+} from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { usePostContext } from "../../../context/PostContext";
+import { useAuth } from "../../../context/AuthContext";
+import Header from "../components/header";
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
     hour12: true,
   }).format(date);
 };
@@ -32,16 +40,26 @@ const PrintingShopHome: React.FC = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      await fetchMyPosts(1, 10); // Fetch the user's posts
-      setDesignerPosts(posts.filter(post => post.user_id === user?.id)); // Filter to show only user's posts
+      await fetchMyPosts(); // Fetch all user's posts
+      setDesignerPosts(posts.filter((post) => post.user_id === user?.id));
+      console.log(posts); // This will log the posts after fetching
     };
 
     fetchPosts();
   }, [fetchMyPosts, posts, user]);
 
-  const handleEdit = (postId: number, title: string, content: string, images, price: number | null, quantity: number | null) => {
-    navigate(`/posts/${postId}`, { state: { postId, title, content, images, price, quantity } });
-};
+  const handleEdit = (
+    postId: number,
+    title: string,
+    content: string,
+    images,
+    price: number | null,
+    quantity: number | null
+  ) => {
+    navigate(`/posts/${postId}`, {
+      state: { postId, title, content, images, price, quantity },
+    });
+  };
 
   const handleDelete = (postId: number) => {
     if (user) {
@@ -50,6 +68,7 @@ const PrintingShopHome: React.FC = () => {
   };
 
   const PostCard = ({ post }) => {
+    console.log(post);
     const [anchorEl, setAnchorEl] = useState(null);
     const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -62,15 +81,23 @@ const PrintingShopHome: React.FC = () => {
     };
 
     const handlePrevImage = () => {
-      setCurrentIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : post.images.length - 1));
+      setCurrentIndex((prevIndex) =>
+        prevIndex > 0 ? prevIndex - 1 : post.images.length - 1
+      );
     };
 
     const handleNextImage = () => {
-      setCurrentIndex((prevIndex) => (prevIndex < post.images.length - 1 ? prevIndex + 1 : 0));
+      setCurrentIndex((prevIndex) =>
+        prevIndex < post.images.length - 1 ? prevIndex + 1 : 0
+      );
     };
 
     return (
-      <Card key={post.post_id} className="shadow-lg" style={{ width: '100%', maxWidth: '600px', marginBottom: '16px' }}>
+      <Card
+        key={post.post_id}
+        className="shadow-lg"
+        style={{ width: "100%", maxWidth: "600px", marginBottom: "16px" }}
+      >
         {post.images && post.images.length > 0 ? (
           <div className="relative h-48">
             <img
@@ -97,17 +124,44 @@ const PrintingShopHome: React.FC = () => {
 
         <CardContent>
           <div className="flex items-center mb-4">
-            <Avatar alt={post.user.username} src={post.user.avatar || '/static/images/avatar/1.jpg'} sx={{ width: 40, height: 40 }} />
+            <Avatar
+              alt={post.user.username}
+              src={post.user.avatar || "/static/images/avatar/1.jpg"}
+              sx={{ width: 40, height: 40 }}
+            />
             <div className="ml-3">
-              <Typography variant="subtitle1" className="font-bold">{post.user.username}</Typography>
-              <Typography variant="body2" color="textSecondary">{post.user.role?.rolename || 'N/A'}</Typography>
+              <Typography variant="subtitle1" className="font-bold">
+                {post.user.username}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                {post.user.role?.rolename || "N/A"}
+              </Typography>
             </div>
             <IconButton onClick={handleMenuOpen} className="ml-auto">
               <MoreVertIcon />
             </IconButton>
-            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-            <MenuItem onClick={() => handleEdit(post.post_id, post.title, post.content, post.images, post.price, post.quantity)}>Edit</MenuItem>
-              <MenuItem onClick={() => handleDelete(post.post_id)}>Delete</MenuItem>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem
+                onClick={() =>
+                  handleEdit(
+                    post.post_id,
+                    post.title,
+                    post.content,
+                    post.images,
+                    post.price,
+                    post.quantity
+                  )
+                }
+              >
+                Edit
+              </MenuItem>
+              <MenuItem onClick={() => handleDelete(post.post_id)}>
+                Delete
+              </MenuItem>
             </Menu>
           </div>
 
@@ -119,13 +173,15 @@ const PrintingShopHome: React.FC = () => {
           </Typography>
 
           <Typography variant="body2" color="textPrimary" className="mb-1">
-            <strong>Price:</strong> {post.price ? `₱${post.price}` : 'N/A'}
+            <strong>Price:</strong> {post.price ? `₱${post.price}` : "N/A"}
           </Typography>
           <Typography variant="body2" color="textSecondary" className="mb-1">
-            <strong>Created:</strong> {post.created_at ? formatDate(post.created_at) : 'N/A'}
+            <strong>Created:</strong>{" "}
+            {post.created_at ? formatDate(post.created_at) : "N/A"}
           </Typography>
           <Typography variant="body2" color="textSecondary">
-            <strong>Updated:</strong> {post.updated_at ? formatDate(post.updated_at) : 'N/A'}
+            <strong>Updated:</strong>{" "}
+            {post.updated_at ? formatDate(post.updated_at) : "N/A"}
           </Typography>
         </CardContent>
       </Card>
@@ -137,12 +193,12 @@ const PrintingShopHome: React.FC = () => {
       <div className="flex-1 flex flex-col">
         <Header />
         <div className="mt-16 p-8">
-          <Typography variant="h5" className="mb-6 font-bold">My Posts</Typography>
+          <Typography variant="h5" className="mb-6 font-bold">
+            My Posts
+          </Typography>
           <div className="space-y-8">
-            {designerPosts.length > 0 ? (
-              designerPosts.map(post => (
-                <PostCard key={post.post_id} post={post} />
-              ))
+            {posts.length > 0 ? (
+              posts.map((post) => <PostCard key={post.post_id} post={post} />)
             ) : (
               <Typography>No posts available</Typography>
             )}
